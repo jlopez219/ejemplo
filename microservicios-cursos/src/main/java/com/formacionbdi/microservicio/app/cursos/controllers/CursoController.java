@@ -2,7 +2,10 @@ package com.formacionbdi.microservicio.app.cursos.controllers;
 
 import com.formacionbdi.microservicio.app.cursos.services.CursoService;
 import com.formacionbdi.microservicio.commons.controllers.CommonController;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -14,6 +17,7 @@ import com.formacionbdi.microservicios.commons.examenes.models.entity.Examen;
 
 import ch.qos.logback.core.joran.conditional.IfAction;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -26,6 +30,17 @@ import com.formacionbdi.microservicio.app.cursos.models.entity.Curso;
 @RestController
 public class CursoController extends CommonController<Curso,CursoService> {
 
+	@Value("${config.balanceador.test}")
+	private String balanceadorTest;
+	
+	@GetMapping("/balanceador-test")
+	public ResponseEntity<?> balanceadorTest() {
+		Map<String, Object> response = new HashMap<String, Object>();
+		response.put("balanceador", balanceadorTest);
+		response.put("cursos", service.findAll());
+		return ResponseEntity.ok(response);
+	}
+	
 	@PutMapping("/{id}")
 	public ResponseEntity<?> editar (@Valid @RequestBody Curso curso, @PathVariable Long id, BindingResult result){
 		if (result.hasErrors()) {
@@ -106,5 +121,7 @@ public class CursoController extends CommonController<Curso,CursoService> {
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(this.service.save(dbCurso));
 	}
+
+
 	
 }
